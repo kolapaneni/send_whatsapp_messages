@@ -1,0 +1,129 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}{{ room.name }}{% endblock %}
+{% block content %}
+<div class="p-1 lg:p-1 text-center">
+    <h1 class="text-3xl lg:text-6xl text-white">{{ room.name }}</h1>
+</div>
+
+<div class="lg:w-2/4 mx-4 lg:mx-auto p-4 bg-white rounded-xl">
+    <div class="chat-messages space-y-3" id="chat-messages">
+        {% for message in messages %}
+            <div class="p-4 bg-gray-200 rounded-xl">
+                <p class="font-semibold">{{ message.user.username }}</p>
+                <p>{{ message.content }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="lg:w-2/4 mx-4 lg:mx-auto p-4 bg-white rounded-xl">
+    <form method="post" action="." class="flex">
+        <input type="text" name="content" class="flex-1 mr-3" placeholder="your message..." id="chat-message-input">
+        
+        <button
+            class="px-5 py-1 rounded-xl text-white bg-teal-600 hover:bg-teal-700"
+            id="chat-message-submit">Submit</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ room.slug|json_script:"json-roomname" }}
+{{ request.user.username|json_script:"json-username" }}
+
+<script>
+    const roomName = JSON.parse(document.getElementById('json-roomname').textContent);
+    const userName = JSON.parse(document.getElementById('json-username').textContent);
+    const chatSocket = new WebSocket(
+    'ws://'
+    + window.location.host
+    + '/ws/'
+    + roomName
+    + '/'
+    );
+    chatSocket.onmessage = function(e){
+        console.log('onmessage')
+        
+        const data = JSON.parse(e.data);
+        
+        if (data.message){
+            let html = '<div class="p-4 bg-gray-200 rounded-xl">';
+                html += '<p class="font-semibold">' + data.username + '</p>';
+                html += '<p>' + data.message + '</p></div>';
+            document.querySelector('#chat-messages').innerHTML += html;
+            
+            scrollToBottom();
+        } else{
+            alert(' the message was empty!');
+        }
+    }
+    
+    chatSocket.onclose = function(e){
+        console.log('onclose')
+    }
+    
+    //
+    
+    document.querySelector('#chat-message-submit').onclick = function(e){
+        e.preventDefault();
+        
+        const messageInputDom = document.querySelector('#chat-message-input');
+        const message = messageInputDom.value;
+        
+        chatSocket.send(JSON.stringify({
+            'message': message,
+            'username': userName,
+            'room': roomName
+        }));
+        
+        messageInputDom.value = '';
+        
+<!--        return False;-->
+    }
+    //
+    
+    
+    function scrollToBottom() {
+        const objDiv = document.querySelector('#chat-messages')
+        objDiv.scrollTop = objDiv.scrollHeight;
+    }
+    
+    scrollToBottom();
+    
+    var url = 'https://wati-integration-service.clare.ai/ShopifyWidget/shopifyWidget.js?68244';
+    var s = document.createElement('script');
+    s.type = 'text/javascript';
+    s.async = true;
+    s.src = url;
+    var options = {
+  "enabled":true,
+  "chatButtonSetting":{
+      "backgroundColor":"#47ca1c",
+      "ctaText":"CollegeDekho",
+      "borderRadius":"25",
+      "marginLeft":"0",
+      "marginBottom":"50",
+      "marginRight":"50",
+      "position":"right"
+  },
+  "brandSetting":{
+      "brandName":"CollegeDekho.com",
+      "brandSubTitle":"Our counsellor will contact you soon",
+      "brandImg":"https://pbs.twimg.com/profile_images/1147020879961833473/5yd4usCd_400x400.png",
+      "welcomeText":"Hi there!\nHow can I help you?",
+      "messageText":"Hello, I have a question about {{page_link}}",
+      "backgroundColor":"#0a5f54",
+      "ctaText":"Start Chat",
+      "borderRadius":"25",
+      "autoShow":true,
+      "phoneNumber":"14155238886"
+  }
+};
+    s.onload = function() {
+        CreateWhatsappChatWidget(options);
+    };
+    var x = document.getElementsByTagName('script')[0];
+    x.parentNode.insertBefore(s, x);
+</script>
+{% endblock %}

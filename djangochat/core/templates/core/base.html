@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %}ChatBot</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+        
+        <style>
+            .chat-messages{
+                height: 400px;
+                overflow-y: auto;
+            }
+        </style>
+    </head>
+<body class="bg-teal-600">
+    <nav class="flex items-center justify-between px-4 py-6 bg-teal-800">
+        <div>
+            <a href="/" class="text-xl text-white">ChatBot</a>
+        </div>
+        <div class="flex items-center space-x-4">
+            {% if request.user.is_authenticated %}
+            <a href="/room/" class="text-white hover:text-gray-200">Rooms</a>
+            <a href="/logout/" class="px-5 py-3 rounded-xl text-white bg-teal-600 hover:bg-teal-700">Log out</a>
+
+            {% else %}
+            <a href="/login/" class="text-white hover:text-gray-200">Log in</a>
+            <a href="/signup/" class="px-5 py-3 rounded-xl text-white bg-teal-600 hover:bg-teal-700">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+    {% block content %}
+    {% endblock %}
+
+    {% block scripts %}
+    <script>
+    var url = 'https://wati-integration-service.clare.ai/ShopifyWidget/shopifyWidget.js?68244';
+    var s = document.createElement('script');
+    s.type = 'text/javascript';
+    s.async = true;
+    s.src = url;
+    var options = {
+  "enabled":true,
+  "chatButtonSetting":{
+      "backgroundColor":"#47ca1c",
+      "ctaText":"CollegeDekho",
+      "borderRadius":"25",
+      "marginLeft":"0",
+      "marginBottom":"50",
+      "marginRight":"50",
+      "position":"right"
+  },
+  "brandSetting":{
+      "brandName":"CollegeDekho",
+      "brandSubTitle":"Typically replies within a day",
+      "brandImg":"https://pbs.twimg.com/profile_images/1147020879961833473/5yd4usCd_400x400.png",
+      "welcomeText":"Hi there!\nHow can I help you?",
+      "messageText":"Hello, I have a question about {{page_link}}",
+      "backgroundColor":"#0a5f54",
+      "ctaText":"Start Chat",
+      "borderRadius":"25",
+      "autoShow":true,
+      "phoneNumber":"917981119824"
+  }
+};
+    s.onload = function() {
+        CreateWhatsappChatWidget(options);
+    };
+    var x = document.getElementsByTagName('script')[0];
+    x.parentNode.insertBefore(s, x);
+</script>
+    {% endblock %}
+
+</body>
+<footer>&copy; BalaKrishna</footer>
+</html>
