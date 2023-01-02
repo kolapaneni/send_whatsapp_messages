@@ -47,6 +47,9 @@ def wts_message(request):
     print(message.sid)
     return HttpResponse(str(message))
 
+
+###### WHATSAPP BUSINESS API PROVIDED BY FB META DEVELOPER ############
+
 @csrf_exempt
 def whatsappwebhook(request):
     if request.method == 'GET':
@@ -96,3 +99,10 @@ def sendwhatsappmessages(phoneNumber, message):
     response = requests.post(settings.WHATSAPP_URL, headers=headers, json=payload)
     ans = response.json()
     return ans
+
+######## INFOBIP WHATSAPP API #######################
+@api_view(['POST'])
+@renderer_classes([JSONRenderer])
+def infobip(request):
+    data = request.POST.dict
+    print(data)

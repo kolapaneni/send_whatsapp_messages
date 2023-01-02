@@ -46,15 +46,15 @@ def message(request):
     notification.notify(title="message:",
                         message=f'{name} says {message}')
     incoming_msg = request.data['Body'].lower()
-    # resp = MessagingResponse()
-    # reply = dict.get(incoming_msg, dict.get("default"))
-    # resp.message(reply)
-    # print(resp)
+    resp = MessagingResponse()
+    reply = dict.get(incoming_msg, dict.get("default"))
+    resp.message(reply)
+    print(resp)
 
     obj = Conversations.objects.create(room_id=get_conversation_id(sender, receiver),
                                        sender=sender, receiver=receiver, message=incoming_msg,
                                        sent_at=datetime.now())
-    return HttpResponse(str())
+    return HttpResponse(str(resp))
 
 
 account_sid = "ACf277df7c17901f4619a31059a7f05bcf"
