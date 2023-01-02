@@ -1,4 +1,5 @@
 import json
+import http.client
 import requests
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -101,8 +102,48 @@ def sendwhatsappmessages(phoneNumber, message):
     return ans
 
 ######## INFOBIP WHATSAPP API #######################
-@api_view(['POST'])
-@renderer_classes([JSONRenderer])
+# @api_view(['POST'])
+# @renderer_classes([JSONRenderer])
+@csrf_exempt
 def infobip(request):
-    data = request.POST.dict
-    print(data)
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        print(data)
+        if 'results' in data:
+            try:
+                for i in data['results']:
+                    from_ = i['from']
+                    to = i['to']
+                    msg = i['message']['text']
+                    profile_name = i['contact']['name']
+                    mesage = 'Hi {}, Welcome to CollegeDekho.com services on whatsapp. How may i help you?'.format(profile_name)
+                    sendinfobipmessage(from_, mesage)
+            except:
+                pass
+        return HttpResponse('success', status=200)
+    
+    
+def sendinfobipmessage(phonenumber, message):
+    # BASE_URL = "https://pw6wq8.api.infobip.com"
+    # API_KEY = "App eda012762988ae35ebcc7f02b3a19d1c-9e22ba27-709b-4ae0-905b-c8a042f5b89c"
+    # 
+    SENDER = "447860099299"
+    # RECIPIENT = "919849256029"
+
+    payload = {
+        "from": SENDER,
+        "to": phonenumber,
+        "content": {
+                "text": message,
+                }
+        }
+    headers = {
+        'Authorization': settings.API_KEY,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+
+    response = requests.post(settings.BASE_URL + "/whatsapp/1/message/text", json=payload, headers=headers)
+    ans = response.json()
+    print(ans)
+    return ans

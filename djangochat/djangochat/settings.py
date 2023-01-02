@@ -146,8 +146,16 @@ EMAIL_HOST_USER = 'balaking137@gmail.com'
 EMAIL_HOST_PASSWORD = '9966787981'
 DEFAULT_FROM_EMAIL = 'balaking137@gmail.com'
 
-LOGIN_REDIRECT_URL = 'dashboard'
-LOGIN_URL = 'login'
+# LOGIN_REDIRECT_URL = 'dashboard'
+# LOGIN_URL = 'login'
 
+
+#--------- WHATSAPP API PROVIDED BY THE FACEBOOK META----------------
 WHATSAPP_URL = "https://graph.facebook.com/v15.0/100722319578564/messages"
 WHATSAPP_TOKEN = "Bearer EAAMzLHHR9hcBALLwb0ChwTbZA6O2h3tmm5cBWFVjv6QBzQEeeTIZAAhSNa2kNLvtDmNdAZAQqeFzZC6a9ZBxVyATwRXu8YvzKZCPbPZBy4d2T9fu9RJnEJQqjeQ3JezTtfGLMILPHgAHNZCJdObjG7ZA4urj1WnhvKMEcuy1NWQwT3a86S6m9F5Tlmq0hvyCe2aIWOShsvRSgagZDZD"
+
+
+#--------- WHATSPP API PROVIDED BY THE INFOBIP------------------
+BASE_URL = "https://pw6wq8.api.infobip.com"
+API_KEY = "App eda012762988ae35ebcc7f02b3a19d1c-9e22ba27-709b-4ae0-905b-c8a042f5b89c"
+
