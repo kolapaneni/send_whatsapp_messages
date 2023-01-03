@@ -1,5 +1,4 @@
 import json
-import http.client
 import requests
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
@@ -7,12 +6,12 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
+from datetime import datetime
 from twilio.rest import Client
 from rest_framework.decorators import api_view, renderer_classes
-# from .tests import dict
-
+from .tests import get_conversation_id
 from djangochat import settings
-from .models import Room, Message
+from .models import Room, Message, Conversations
 
 
 # x = ["+917981119824", "+917702025720", "+919160032524"]
@@ -113,6 +112,7 @@ class InfobipAPIView(APIView):
             try:
                 for i in data['results']:
                     from_ = i['from']
+                    print(from_)
                     to = i['to']
                     msg = i['message']['text'].lower()
                     profile_name = i['contact']['name']
@@ -132,6 +132,9 @@ class InfobipAPIView(APIView):
 
                     }
                     incoming_msgs = msg
+                    obj = Conversations.objects.create(room_id=get_conversation_id(from_, to),
+                                                       sender=from_, receiver=to, message=incoming_msgs,
+                                                       sent_at=datetime.now())
                     reply = dict.get(incoming_msgs, dict.get('default'))
 
                     # message = f"Hello {profile_name}, Welcome to CollegeDekho services. How may i help you?"

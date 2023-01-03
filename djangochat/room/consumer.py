@@ -7,7 +7,7 @@ from .models import Conversations
 from plyer import notification
 from .serializers import ConversationsSerializer
 from .tests import send_msg, send_whatsapp_msg
-
+from .views import sendinfobipmessage
 
 class ChatConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
@@ -67,8 +67,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         asyncio.ensure_future(self.fetch_new_messages())
 
     @sync_to_async
-    def send_whats_app_message(self, message, number):
-        send_whatsapp_msg(message, "whatsapp:+14155238886")
+    def send_whats_app_message(self, message, phonenumber):
+        sendinfobipmessage(message=message, phonenumber=phonenumber)
 
     # Receive message from WebSocket
     async def receive(self, text_data=None, bytes_data=None):
