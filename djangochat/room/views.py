@@ -9,6 +9,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
 from twilio.rest import Client
 from rest_framework.decorators import api_view, renderer_classes
+# from .tests import dict
 
 from djangochat import settings
 from .models import Room, Message
@@ -55,7 +56,7 @@ def wts_message(request):
 
 class Whatsappwebhook(APIView):
     def get(self, request):
-        VERIFY_TOKEN = '1d731114-f447-4e87-b43e-8e858414ef95'
+        VERIFY_TOKEN = settings.WEBHOOK_VERIFY_TOKEN
         mode = request.GET['hub.mode']
         token = request.GET['hub.verify_token']
         challenge = request.GET['hub.challenge']
@@ -113,11 +114,28 @@ class InfobipAPIView(APIView):
                 for i in data['results']:
                     from_ = i['from']
                     to = i['to']
-                    msg = i['message']['text']
+                    msg = i['message']['text'].lower()
                     profile_name = i['contact']['name']
+                    dict = {
+                        "good morning": "Very Good morning!",
+                        "how are you": "I am fine. how are you",
+                        "hi": f"Hello {profile_name}, Welcome to CollegeDekho.com services on whatsapp. Lovely, may i "
+                              f"have your name?",
+                        "colleges": f"Hi {profile_name}, Visit this website for best colleges "
+                                    f"https://www.collegedekho.com OR"
+                                    "Contact us For more information +919849256029 and +917981119824",
+                        "hello": f"Hi {profile_name}, Welcome to CollegeDekho.com services on whatsapp. How may i help "
+                                 f"you?",
+                        "default": f"Sorry!{profile_name}, I didn't get that. For more details Visit this website "
+                                   f"https://www.collegedekho.com/ OR call"
+                                   "us for more information +919849256029, +91798119824. "
 
-                    message = 'Hello {}, Welcome to CollegeDekho services. How may i help you?'.format(profile_name)
-                    sendinfobipmessage(from_, message)
+                    }
+                    incoming_msgs = msg
+                    reply = dict.get(incoming_msgs, dict.get('default'))
+
+                    # message = f"Hello {profile_name}, Welcome to CollegeDekho services. How may i help you?"
+                    sendinfobipmessage(from_, reply)
             except:
                 pass
             return HttpResponse('success', status=200)
@@ -132,22 +150,38 @@ def sendinfobipmessage(phonenumber, message):
         "to": phonenumber,
         "content": {
             "text": message,
-        },
-        "header": {
-            "type": "IMAGE",
-            "mediaUrl": "https://www.google.com/imgres?imgurl=https%3A%2F%2Fwww.financialexpress.com%2Fwp-content%2Fuploads%2F2022%2F08%2FCollegeDekho-1.jpg&imgrefurl=https%3A%2F%2Fwww.financialexpress.com%2Feducation-2%2Fcollegedekho-plans-to-hire-300-people-in-next-three-months-eyes-three-lakh-applications-this-fiscal%2F2618255%2F&tbnid=wV24gk7h-d7P4M&vet=12ahUKEwipysjU76j8AhXjhNgFHbmYAuMQMygCegUIARDNAQ..i&docid=jn22uEkqtDjE1M&w=1200&h=675&q=collegedekho%20image&ved=2ahUKEwipysjU76j8AhXjhNgFHbmYAuMQMygCegUIARDNAQ"
-        },
-        "buttons": [
-            {
-                "type": "QUICK_REPLY",
-                "parameter": "yes-payload"
+            "templateName": "registration_success",
+            "templateData": {
+                "body": {
+                    "placeholders": [
+                        "sender",
+                        "message",
+                        "delivered",
+                        "testing"
+                    ]
+                },
+                "header": {
+                    "type": "IMAGE",
+                    "mediaUrl": "https://api.infobip.com/ott/1/media/infobipLogo"
+                },
+                "buttons": [
+                    {
+                        "type": "QUICK_REPLY",
+                        "parameter": "yes-payload"
+                    },
+                    {
+                        "type": "QUICK_REPLY",
+                        "parameter": "no-payload"
+                    },
+                    {
+                        "type": "QUICK_REPLY",
+                        "parameter": "later-payload"
+                    }
+                ]
             },
-            {
-                "type": "QUICK_REPLY",
-                "parameter": "no-payload"
-            }
-        ]
-    }
+            "language": "en"
+        }
+        }
     headers = {
         'Authorization': settings.API_KEY,
         'Content-Type': 'application/json',

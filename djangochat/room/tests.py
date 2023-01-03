@@ -15,7 +15,7 @@ dict = {
     "good morning": "Very Good morning!",
     "how are you": "I am fine. how are you",
     "hi": "Hello. Welcome to CollegeDekho.com services on whatsapp. Lovely, may i have your name?",
-    "colleges": "Visit this website for best colleges https://www.collegedekho.com OR" \
+    "colleges": "Visit this website for best colleges https://www.collegedekho.com OR"
                 "Contact us For more information +919849256029 and +917981119824",
     "hello": "Hi, Welcome to CollegeDekho.com services on whatsapp. How may i help you?",
     "default": "Sorry! I didn't get that. For more details Visit this website https://www.collegedekho.com/ OR call "
@@ -80,7 +80,7 @@ def send_msg(request):
     sender_name = request.POST.get["ProfileName"]
     sender_number = request.POST.get["From"]
     print("msg:", message, "name:", sender_name, "number:", sender_number)
-    # message = send_whatsapp_msg(message, sender_number)
+    message = send_whatsapp_msg(message, sender_number)
     return HttpResponse(str(message))
 
 
