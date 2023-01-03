@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.renderers import JSONRenderer
+from rest_framework.views import APIView
 from twilio.rest import Client
 from rest_framework.decorators import api_view, renderer_classes
 
@@ -23,6 +24,7 @@ def rooms(request):
     rooms = Room.objects.all()
 
     return render(request, 'room/rooms.html', {'rooms': rooms})
+
 
 @login_required
 def room(request, slug):
@@ -51,22 +53,22 @@ def wts_message(request):
 
 ###### WHATSAPP BUSINESS API PROVIDED BY FB META DEVELOPER ############
 
-@csrf_exempt
-def whatsappwebhook(request):
-    if request.method == 'GET':
+class Whatsappwebhook(APIView):
+    def get(self, request):
         VERIFY_TOKEN = '1d731114-f447-4e87-b43e-8e858414ef95'
         mode = request.GET['hub.mode']
         token = request.GET['hub.verify_token']
         challenge = request.GET['hub.challenge']
 
-        if mode == "subscribe" and token == VERIFY_TOKEN:
+        if mode == 'subscribe' and token == VERIFY_TOKEN:
             return HttpResponse(challenge)
         else:
             return HttpResponse('error')
 
-    if request.method == 'POST':
-        data =json.loads(request.body)
+    def post(self, request):
+        data = json.loads(request.body)
         print(data)
+
         if 'object' in data and 'entry' in data:
             try:
                 for entry in data['entry']:
@@ -78,14 +80,13 @@ def whatsappwebhook(request):
                     messageId = entry['changes'][0]['value']['messages'][0]['id']
                     timestamp = entry['changes'][0]['value']['messages'][0]['timestamp']
                     text = entry['changes'][0]['value']['messages'][0]['text']['body']
-                    print(text)
 
-                    # phoneNumber = "918149689641"
-                    message = "Hi, {}. Welcome to CollegeDekho.com services on whatsapp. How may i help you?".format(profileName)
+                    message = 'Hi {}, Welcome to CollegeDekho services on whatsapp. How may i help you?'.format(
+                        profileName)
                     sendwhatsappmessages(fromId, message)
             except:
                 pass
-        return HttpResponse('success', status=200)
+            return HttpResponse('success', status=200)
 
 
 def sendwhatsappmessages(phoneNumber, message):
@@ -101,12 +102,10 @@ def sendwhatsappmessages(phoneNumber, message):
     ans = response.json()
     return ans
 
+
 ######## INFOBIP WHATSAPP API #######################
-# @api_view(['POST'])
-# @renderer_classes([JSONRenderer])
-@csrf_exempt
-def infobip(request):
-    if request.method == 'POST':
+class InfobipAPIView(APIView):
+    def post(self, request):
         data = json.loads(request.body)
         print(data)
         if 'results' in data:
@@ -116,17 +115,15 @@ def infobip(request):
                     to = i['to']
                     msg = i['message']['text']
                     profile_name = i['contact']['name']
-                    mesage = 'Hi {}, Welcome to CollegeDekho.com services on whatsapp. How may i help you?'.format(profile_name)
-                    sendinfobipmessage(from_, mesage)
+
+                    message = 'Hello {}, Welcome to CollegeDekho services. How may i help you?'.format(profile_name)
+                    sendinfobipmessage(from_, message)
             except:
                 pass
-        return HttpResponse('success', status=200)
-    
-    
+            return HttpResponse('success', status=200)
+
+
 def sendinfobipmessage(phonenumber, message):
-    # BASE_URL = "https://pw6wq8.api.infobip.com"
-    # API_KEY = "App eda012762988ae35ebcc7f02b3a19d1c-9e22ba27-709b-4ae0-905b-c8a042f5b89c"
-    # 
     SENDER = "447860099299"
     # RECIPIENT = "919849256029"
 
@@ -134,9 +131,23 @@ def sendinfobipmessage(phonenumber, message):
         "from": SENDER,
         "to": phonenumber,
         "content": {
-                "text": message,
-                }
-        }
+            "text": message,
+        },
+        "header": {
+            "type": "IMAGE",
+            "mediaUrl": "https://www.google.com/imgres?imgurl=https%3A%2F%2Fwww.financialexpress.com%2Fwp-content%2Fuploads%2F2022%2F08%2FCollegeDekho-1.jpg&imgrefurl=https%3A%2F%2Fwww.financialexpress.com%2Feducation-2%2Fcollegedekho-plans-to-hire-300-people-in-next-three-months-eyes-three-lakh-applications-this-fiscal%2F2618255%2F&tbnid=wV24gk7h-d7P4M&vet=12ahUKEwipysjU76j8AhXjhNgFHbmYAuMQMygCegUIARDNAQ..i&docid=jn22uEkqtDjE1M&w=1200&h=675&q=collegedekho%20image&ved=2ahUKEwipysjU76j8AhXjhNgFHbmYAuMQMygCegUIARDNAQ"
+        },
+        "buttons": [
+            {
+                "type": "QUICK_REPLY",
+                "parameter": "yes-payload"
+            },
+            {
+                "type": "QUICK_REPLY",
+                "parameter": "no-payload"
+            }
+        ]
+    }
     headers = {
         'Authorization': settings.API_KEY,
         'Content-Type': 'application/json',
@@ -145,5 +156,4 @@ def sendinfobipmessage(phonenumber, message):
 
     response = requests.post(settings.BASE_URL + "/whatsapp/1/message/text", json=payload, headers=headers)
     ans = response.json()
-    print(ans)
     return ans
