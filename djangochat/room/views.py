@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
+from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
 from datetime import datetime
@@ -139,8 +140,8 @@ class InfobipAPIView(APIView):
 
                     # message = f"Hello {profile_name}, Welcome to CollegeDekho services. How may i help you?"
                     sendinfobipmessage(from_, reply)
-            except:
-                pass
+            except Exception as error:
+                return Response({'detail': error})
             return HttpResponse('success', status=200)
 
 
@@ -153,44 +154,14 @@ def sendinfobipmessage(phonenumber, message):
         "to": phonenumber,
         "content": {
             "text": message,
-            "templateName": "registration_success",
-            "templateData": {
-                "body": {
-                    "placeholders": [
-                        "sender",
-                        "message",
-                        "delivered",
-                        "testing"
-                    ]
-                },
-                "header": {
-                    "type": "IMAGE",
-                    "mediaUrl": "https://api.infobip.com/ott/1/media/infobipLogo"
-                },
-                "buttons": [
-                    {
-                        "type": "QUICK_REPLY",
-                        "parameter": "yes-payload"
-                    },
-                    {
-                        "type": "QUICK_REPLY",
-                        "parameter": "no-payload"
-                    },
-                    {
-                        "type": "QUICK_REPLY",
-                        "parameter": "later-payload"
-                    }
-                ]
-            },
-            "language": "en"
         }
-        }
+    }
     headers = {
-        'Authorization': settings.API_KEY,
+        'Authorization': settings.INFOBIP_API_KEY,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
     }
 
-    response = requests.post(settings.BASE_URL + "/whatsapp/1/message/text", json=payload, headers=headers)
+    response = requests.post(settings.INFOBIP_URL + "/whatsapp/1/message/text", json=payload, headers=headers)
     ans = response.json()
     return ans

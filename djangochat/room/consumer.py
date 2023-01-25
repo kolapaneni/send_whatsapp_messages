@@ -40,10 +40,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def fetch_new_messages(self):
         sent_after = datetime.now()
         while True:
-            print("running")
+            # print("running")
             data = await self.get_new_messages(sent_after=sent_after)
             sent_after = datetime.now()
-            print(data)
+            # print(data)
             if data:
                 await self.send_message(data)
 
@@ -69,6 +69,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @sync_to_async
     def send_whats_app_message(self, message, phonenumber):
         sendinfobipmessage(message=message, phonenumber=phonenumber)
+        # send_whatsapp_msg(message, "whatsapp:+14155238886")
 
     # Receive message from WebSocket
     async def receive(self, text_data=None, bytes_data=None):
