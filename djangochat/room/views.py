@@ -80,11 +80,19 @@ class Whatsappwebhook(APIView):
                     fromId = entry['changes'][0]['value']['messages'][0]['from']
                     messageId = entry['changes'][0]['value']['messages'][0]['id']
                     timestamp = entry['changes'][0]['value']['messages'][0]['timestamp']
-                    text = entry['changes'][0]['value']['messages'][0]['text']['body']
+                    text = entry['changes'][0]['value']['messages'][0]['text']['body'].lower()
+                    
+                    dict = {
+                        "hi": f"Hello, {profileName}"
+                    }
+                    incoming_msgs = text
 
-                    message = 'Hi {}, Welcome to CollegeDekho services on whatsapp. How may i help you?'.format(
-                        profileName)
-                    sendwhatsappmessages(fromId, message)
+                    obj = Conversations.objects.create(room_id=get_conversation_id(fromId, phoneNumber),
+                                                       sender=fromId, receiver=phoneNumber, message=incoming_msgs,
+                                                       sent_at=datetime.now())
+                    reply = dict.get(incoming_msgs)
+
+                    sendwhatsappmessages(fromId, reply)
             except:
                 pass
             return HttpResponse('success', status=200)
@@ -140,8 +148,9 @@ class InfobipAPIView(APIView):
 
                     # message = f"Hello {profile_name}, Welcome to CollegeDekho services. How may i help you?"
                     sendinfobipmessage(from_, reply)
-            except Exception as error:
-                return Response({'detail': error})
+            except:
+                pass
+                
             return HttpResponse('success', status=200)
 
 
