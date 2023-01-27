@@ -3,8 +3,7 @@ import requests
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.response import Response
+from .utils import send_notification
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
 from datetime import datetime
@@ -125,6 +124,7 @@ class InfobipAPIView(APIView):
                     to = i['to']
                     msg = i['message']['text'].lower()
                     profile_name = i['contact']['name']
+                    send_notification(message=msg)
                     dict = {
                         "good morning": "Very Good morning!",
                         "how are you": "I am fine. how are you",

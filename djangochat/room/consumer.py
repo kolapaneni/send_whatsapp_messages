@@ -3,11 +3,11 @@ from datetime import datetime
 import asyncio
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
+from .utils import send_notification
 from .models import Conversations
-from plyer import notification
 from .serializers import ConversationsSerializer
 from .tests import send_msg, send_whatsapp_msg
-from .views import sendinfobipmessage
+from .views import sendinfobipmessage, sendwhatsappmessages
 
 class ChatConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
@@ -68,6 +68,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     @sync_to_async
     def send_whats_app_message(self, message, phonenumber):
+        # sendwhatsappmessages(phoneNumber=phonenumber, message=message)
         sendinfobipmessage(message=message, phonenumber=phonenumber)
         # send_whatsapp_msg(message, "whatsapp:+14155238886")
 
@@ -77,7 +78,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = data['message']
 
         await self.send_whats_app_message(message, self.receiver)
-        notification.notify(title="message:", message=f'{self.sender} says {message}',app_name="CollegeDekho",app_icon="https://pbs.twimg.com/profile_images/1147020879961833473/5yd4usCd_400x400.png")
+        send_notification(message=message)
         await self.save_message(sender=self.sender,
                                 receiver=self.receiver,
                                 message=message)

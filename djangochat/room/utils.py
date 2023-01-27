@@ -1,6 +1,6 @@
 import json
 from django.contrib.auth.models import User
-
+from notifypy import Notify
 from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 from plyer import notification
@@ -34,7 +34,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = data['message']
         username = data['username']
         room = data['room']
-        notification.notify(title="message:",message=message,app_name=username)
+        # notification.notify(title="Message:", message=message, app_name="Notification",)
+        send_notification(message=message)
         await self.save_message(username, room, message)
 
         # Send message to room group
@@ -64,3 +65,11 @@ class ChatConsumer(AsyncWebsocketConsumer):
         room = Room.objects.get(slug=room)
 
         Message.objects.create(user=user, room=room, content=message)
+
+
+def send_notification(message):
+    notification = Notify()
+    notification.title = "Message"
+    notification.message = message
+    notification.icon = '/home/balakrishna/Pictures/cld.png'
+    notification.send()
