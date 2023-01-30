@@ -69,7 +69,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
 def send_notification(message):
     notification = Notify()
-    notification.title = "Message"
+    notification.title = "Message:"
     notification.message = message
     notification.icon = '/home/balakrishna/Pictures/cld.png'
     notification.send()

@@ -122,7 +122,7 @@ class InfobipAPIView(APIView):
                     from_ = i['from']
                     print(from_)
                     to = i['to']
-                    msg = i['message']['text'].lower()
+                    msg = i['message']['text']
                     profile_name = i['contact']['name']
                     send_notification(message=msg)
                     dict = {
@@ -140,9 +140,9 @@ class InfobipAPIView(APIView):
                                    "us for more information +919849256029, +91798119824. "
 
                     }
-                    incoming_msgs = msg
+                    incoming_msgs = msg.lower()
                     obj = Conversations.objects.create(room_id=get_conversation_id(from_, to),
-                                                       sender=from_, receiver=to, message=incoming_msgs,
+                                                       sender=from_, receiver=to, message=msg,
                                                        sent_at=datetime.now())
                     reply = dict.get(incoming_msgs, dict.get('default'))
 
