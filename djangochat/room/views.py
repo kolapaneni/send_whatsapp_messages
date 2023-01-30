@@ -10,7 +10,7 @@ from datetime import datetime
 from twilio.rest import Client
 from rest_framework.decorators import api_view, renderer_classes
 from .tests import get_conversation_id
-from djangochat import settings
+from django.conf import settings
 from .models import Room, Message, Conversations
 
 
