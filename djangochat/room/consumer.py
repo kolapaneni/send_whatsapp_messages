@@ -67,9 +67,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
         asyncio.ensure_future(self.fetch_new_messages())
 
     @sync_to_async
-    def send_whats_app_message(self, message, phonenumber):
+    def send_whats_app_message(self, message, phonenumber, sender1):
         # sendwhatsappmessages(phoneNumber=phonenumber, message=message)
-        sendinfobipmessage(message=message, phonenumber=phonenumber)
+        sendinfobipmessage(message=message, phonenumber=phonenumber, sender=sender1)
         # send_whatsapp_msg(message, "whatsapp:+14155238886")
 
     # Receive message from WebSocket
@@ -77,7 +77,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         message = data['message']
 
-        await self.send_whats_app_message(message, self.receiver)
+        await self.send_whats_app_message(message, self.receiver, self.sender)
         send_notification(message=message)
         await self.save_message(sender=self.sender,
                                 receiver=self.receiver,

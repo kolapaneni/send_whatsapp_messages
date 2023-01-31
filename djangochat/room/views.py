@@ -147,19 +147,19 @@ class InfobipAPIView(APIView):
                     reply = dict.get(incoming_msgs, dict.get('default'))
 
                     # message = f"Hello {profile_name}, Welcome to CollegeDekho services. How may i help you?"
-                    sendinfobipmessage(from_, reply)
+                    sendinfobipmessage(from_, reply, to)
             except:
                 pass
                 
             return HttpResponse('success', status=200)
 
 
-def sendinfobipmessage(phonenumber, message):
-    SENDER = "447860099299"
+def sendinfobipmessage(phonenumber, message, sender):
+    # sender = "447860099299"
     # RECIPIENT = "919849256029"
 
     payload = {
-        "from": SENDER,
+        "from": sender,
         "to": phonenumber,
         "content": {
             "text": message,
