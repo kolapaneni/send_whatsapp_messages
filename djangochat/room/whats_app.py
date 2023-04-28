@@ -75,3 +75,40 @@
 #                 pass
 #         return HttpResponse('success', status=200)
 
+def upload_media_to_s3(file):
+    s3 = boto3.client('s3', aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                      aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                      region_name=settings.AWS_REGION)
+
+    # bucket_name = 'first-new-bucket'
+    bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+    object_key = os.path.basename(file)
+
+    if file.endswith('.jpg') or file.endswith('.jpeg'):
+        content_type = 'image/jpeg'
+    elif file.endswith('.png'):
+        content_type = 'image/png'
+    elif file.endswith('.pdf'):
+        content_type = 'application/pdf'
+    elif file.endswith('.docx'):
+        content_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    elif file.endswith('.doc'):
+        content_type = 'application/msword'
+    elif file.endswith('.txt'):
+        content_type = 'text/plain'
+    elif file.endswith('.mp4'):
+        content_type = 'video/mp4'
+    elif file.endswith('.3gpp'):
+        content_type = 'video/3gpp'
+    else:
+        raise ValueError('Unsupported file type')
+
+    file_path = file
+
+    s3.upload_file(file_path, bucket_name, object_key, ExtraArgs={'ContentType': content_type})
+
+    url = s3.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': object_key}, ExpiresIn=604800)
+
+    print(url)
+    return url
+
